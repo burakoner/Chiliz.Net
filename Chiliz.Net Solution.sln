@@ -5,6 +5,14 @@ VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chiliz.Net", "Chiliz.Net\Chiliz.Net.csproj", "{E6782894-6EBB-40F0-B6F5-B5E24139A22F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chiliz.Net.Examples", "Chiliz.Net.Examples\Chiliz.Net.Examples.csproj", "{182D0DE2-9FAE-45D8-BAC8-32F25C17BEDD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A40B5669-AC6E-472D-AC7B-73570099D6C4}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +23,10 @@ Global
 		{E6782894-6EBB-40F0-B6F5-B5E24139A22F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6782894-6EBB-40F0-B6F5-B5E24139A22F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6782894-6EBB-40F0-B6F5-B5E24139A22F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{182D0DE2-9FAE-45D8-BAC8-32F25C17BEDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{182D0DE2-9FAE-45D8-BAC8-32F25C17BEDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{182D0DE2-9FAE-45D8-BAC8-32F25C17BEDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{182D0DE2-9FAE-45D8-BAC8-32F25C17BEDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

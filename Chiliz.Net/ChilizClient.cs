@@ -74,6 +74,9 @@ namespace Chiliz.Net
         private const string HistoryOrdersEndpoint = "historyOrders";
         private const string MyTradesEndpoint = "myTrades";
 
+        // Deposit & Withdrawal
+        private const string DepositOrdersEndpoint = "depositOrders";
+
         // User stream
         private const string GetListenKeyEndpoint = "userDataStream";
         private const string KeepListenKeyAliveEndpoint = "userDataStream";
@@ -804,6 +807,50 @@ namespace Chiliz.Net
         }
         #endregion
 
+        #region Deposit & Wtihdrawal
+        /// <summary>
+        /// GET deposit orders for a specific account.
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="fromId">Deposit OrderId to fetch from. Default gets most recent deposit orders.</param>
+        /// <param name="limit">Default 500; max 1000.</param>
+        /// <param name="receiveWindow"></param>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns></returns>
+        public WebCallResult<IEnumerable<ChilizDeposit>> GetDepositHistory(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, int limit = 500, int? receiveWindow = null, CancellationToken ct = default) => GetDepositHistoryAsync(startTime, endTime, fromId, limit, receiveWindow, ct).Result;
+        /// <summary>
+        /// GET deposit orders for a specific account.
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="fromId">Deposit OrderId to fetch from. Default gets most recent deposit orders.</param>
+        /// <param name="limit">Default 500; max 1000.</param>
+        /// <param name="receiveWindow"></param>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns></returns>
+        public async Task<WebCallResult<IEnumerable<ChilizDeposit>>> GetDepositHistoryAsync(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, int limit=500, int? receiveWindow = null, CancellationToken ct = default)
+        {
+            limit.ValidateIntBetween(nameof(limit), 1, 1000);
+
+            var timestampResult = await CheckAutoTimestamp(ct).ConfigureAwait(false);
+            if (!timestampResult)
+                return new WebCallResult<IEnumerable<ChilizDeposit>>(timestampResult.ResponseStatusCode, timestampResult.ResponseHeaders, null, timestampResult.Error);
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "timestamp", GetTimestamp() }
+            };
+            parameters.AddOptionalParameter("startTime", startTime != null ? ToUnixTimestamp(startTime.Value).ToString(CultureInfo.InvariantCulture) : null);
+            parameters.AddOptionalParameter("endTime", endTime != null ? ToUnixTimestamp(endTime.Value).ToString(CultureInfo.InvariantCulture) : null);
+            parameters.AddOptionalParameter("fromId", fromId);
+            parameters.AddOptionalParameter("limit", limit);
+            parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+
+            return await SendRequest< IEnumerable<ChilizDeposit>>(GetUrl(DepositOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+        }
+        #endregion
+
         #region User Data Stream
         /// <summary>
         /// Starts a user stream by requesting a listen key. This listen key can be used in subsequent requests to ChilizSocketClient.SubscribeToUserDataUpdates. The stream will close after 60 minutes unless a keep alive is send.
@@ -898,7 +945,7 @@ namespace Chiliz.Net
 
         #endregion
 
-        #region Helpers
+        #region Private & Protected Methods
 
         private async Task<WebCallResult<ChilizPlacedOrder>> PlaceOrderInternal(Uri uri,
             string symbol,
@@ -949,7 +996,6 @@ namespace Chiliz.Net
             return await SendRequest<ChilizPlacedOrder>(uri, HttpMethod.Post, ct, parameters, true).ConfigureAwait(false);
         }
 
-        /// <inheritdoc />
         protected override Error ParseErrorResponse(JToken error)
         {
             if (!error.HasValues)
@@ -1070,5 +1116,6 @@ namespace Chiliz.Net
             return ChilizTradeRuleResult.CreatePassed(outputQuantity, outputPrice);
         }
         #endregion
+
     }
 }
