@@ -1,16 +1,14 @@
-﻿using Chiliz.Net.Converters;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using CryptoExchange.Net.Converters;
 using System.Collections.Generic;
-using Chiliz.Net.Objects.Sockets;
 
-namespace Chiliz.Net.Objects
+namespace Chiliz.Net.Objects.Sockets
 {
     /// <summary>
     /// Wrapper for kline information for a symbol
     /// </summary>
-    public class ChilizStreamKline
+    public class ChilizStreamTicker
     {
         /// <summary>
         /// The symbol the data is for
@@ -22,10 +20,10 @@ namespace Chiliz.Net.Objects
         public string Topic { get; set; } = "";
 
         [JsonProperty("params")]
-        public ChilizSubscribeParams Params { get; set; } = new ChilizSubscribeParams();
+        public ChilizKlineSubscribeParams Params { get; set; } = new ChilizKlineSubscribeParams();
 
         [JsonProperty("data")]
-        public List<ChilizStreamKlineData> Data { get; set; } = new List<ChilizStreamKlineData>();
+        public List<ChilizStreamTickerData> Data { get; set; } = new List<ChilizStreamTickerData>();
 
         /// <summary>
         /// Whether this is the first entry
@@ -35,16 +33,12 @@ namespace Chiliz.Net.Objects
 
         [JsonProperty("shared")]
         public bool Shared { get; set; }
-
-        //[JsonProperty("id")]
-        //public string Id { get; set; } = "";
-
     }
 
     /// <summary>
     /// The kline data
     /// </summary>
-    public class ChilizStreamKlineData
+    public class ChilizStreamTickerData
     {
         /// <summary>
         /// The open time of this candlestick
@@ -88,22 +82,8 @@ namespace Chiliz.Net.Objects
         [JsonProperty("v")]
         public decimal Volume { get; set; }
 
-        /// <summary>
-        /// Casts this object to a <see cref="ChilizKline"/> object
-        /// </summary>
-        /// <returns></returns>
-        public ChilizKline ToKline()
-        {
-            return new ChilizKline
-            {
-                Open = Open,
-                Close = Close,
-                Volume = Volume,
-                High = High,
-                Low = Low,
-                OpenTime = OpenTime,
-            };
-        }
+        [JsonProperty("qv")]
+        public decimal QuoteVolume { get; set; }
     }
     
 }

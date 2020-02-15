@@ -6,20 +6,16 @@ namespace Chiliz.Net.Examples
     {
         static void Main(string[] args)
         {
-            ChilizClient cc = new ChilizClient(new ChilizClientOptions { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug });
-            cc.SetApiCredentials("GvhsxgQLtGeUqD6uI48za3bHaGyIp9j0jQY1qBdMDvHipJo8He1FWKXKpEDhID7c", "oBcKNqd4tHB7Gmdtv6ZmdmbteOw933iNXxdYI2LmeuYbdRjAEssLGpRLkttzN47x");
-            var cc01 = cc.GetDepositHistory();
+			var wsc = new ChilizSocketClient();
+            wsc.SubscribeToKlineUpdates("BTCUSDT", KlineInterval.FourHours, (data) =>
+            {
+                Console.WriteLine($"{data.Symbol} O:{data.Data[0].Open} H:{data.Data[0].High} L:{data.Data[0].Low} C:{data.Data[0].Close} V:{data.Data[0].Volume}");
+            });
 
-
-
-
-
-
-
-
-
-
-
+            wsc.SubscribeToMarketTickers(new string[] { "BTCUSDT" }, (data) =>
+            {
+                Console.WriteLine($"{data.Symbol} O:{data.Data[0].Open} H:{data.Data[0].High} L:{data.Data[0].Low} C:{data.Data[0].Close} V:{data.Data[0].Volume}");
+            });
 
             Console.ReadLine();
             return;
