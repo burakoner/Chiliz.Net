@@ -87,7 +87,7 @@ namespace Chiliz.Net
                 throw new ArgumentException("Symbol is not provided");
 
             if (!Regex.IsMatch(symbolString, "^([A-Z|a-z]{5,10})$"))
-                throw new ArgumentException($"{symbolString} is not a valid Binance symbol. Should be [QuoteCurrency][BaseCurrency], e.g. BTCUSDT");
+                throw new ArgumentException($"{symbolString} is not a valid Chiliz symbol. Should be [QuoteCurrency][BaseCurrency], e.g. BTCUSDT");
         }
     }
 }

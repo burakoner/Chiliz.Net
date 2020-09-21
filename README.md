@@ -101,6 +101,9 @@ After installing it's time to actually use it. To get started we have to add the
 Chiliz.Net provides two clients to interact with the Chiliz API. The  `ChilizClient`  provides all rest API calls. The  `ChilizSocketClient`  provides functions to interact with the websocket provided by the Chiliz API. Both clients are disposable and as such can be used in a  `using`statement.
 
 ## Release Notes
+* Version 1.2.0 - 21 Sep 2020
+    * CryptoExchange Version Updated to 3.0.14
+
 * Version 1.0.2 - 01 Feb 2020
     * Added DepositHistory
 
