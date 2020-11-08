@@ -101,6 +101,9 @@ After installing it's time to actually use it. To get started we have to add the
 Chiliz.Net provides two clients to interact with the Chiliz API. The  `ChilizClient`  provides all rest API calls. The  `ChilizSocketClient`  provides functions to interact with the websocket provided by the Chiliz API. Both clients are disposable and as such can be used in a  `using`statement.
 
 ## Release Notes
+* Version 1.2.3 - 08 Nov 2020
+    * Fixed duplicate slashes on BaseAddress caused by CryptoExchange
+
 * Version 1.2.1 - 08 Nov 2020
     * CryptoExchange Version Updated to 3.1.0
 

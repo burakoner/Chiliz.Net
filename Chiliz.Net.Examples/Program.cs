@@ -6,6 +6,9 @@ namespace Chiliz.Net.Examples
     {
         static void Main(string[] args)
         {
+            var sc = new ChilizClient();
+            var c01 = sc.GetServerTime();
+
 			var wsc = new ChilizSocketClient();
             wsc.SubscribeToKlineUpdates("BTCUSDT", KlineInterval.FourHours, (data) =>
             {

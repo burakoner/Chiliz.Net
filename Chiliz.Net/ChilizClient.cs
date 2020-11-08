@@ -1012,8 +1012,7 @@ namespace Chiliz.Net
 
         private Uri GetUrl(string endpoint, string api, string version)
         {
-            var result = $"{BaseAddress}/{api}/v{version}/{endpoint}";
-            return new Uri(result);
+            return new Uri($"{BaseAddress.TrimEnd('/')}/{api}/v{version}/{endpoint}");
         }
 
         private static long ToUnixTimestamp(DateTime time)
