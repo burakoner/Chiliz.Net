@@ -39,7 +39,7 @@ namespace Chiliz.Net
         /// Create a new instance of ChilizSocketClient using provided options
         /// </summary>
         /// <param name="options">The options to use for this client</param>
-        public ChilizSocketClient(ChilizSocketClientOptions options) : base(options, options.ApiCredentials == null ? null : new ChilizAuthenticationProvider(options.ApiCredentials, ArrayParametersSerialization.MultipleValues))
+        public ChilizSocketClient(ChilizSocketClientOptions options) : base("Chiliz", options, options.ApiCredentials == null ? null : new ChilizAuthenticationProvider(options.ApiCredentials, ArrayParametersSerialization.MultipleValues))
         {
         }
         #endregion 
