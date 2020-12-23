@@ -22,6 +22,10 @@ My CryptoExchange.Net implementations:
 <br />
 <a href="https://github.com/burakoner/BtcTurk.Net">BtcTurk</a>
 </td>
+<td><a href="https://github.com/burakoner/Thodex.Net"><img src="https://github.com/burakoner/Thodex.Net/blob/main/Thodex.Net/Icon/icon.png?raw=true"></a>
+<br />
+<a href="https://github.com/burakoner/Thodex.Net">Thodex</a>
+</td>
 </tr>
 </table>
 
@@ -96,7 +100,7 @@ Donations are greatly appreciated and a motivation to keep improving.
 ![Nuget version](https://img.shields.io/nuget/v/Chiliz.Net.svg)  ![Nuget downloads](https://img.shields.io/nuget/dt/Chiliz.Net.svg)
 Available on [Nuget](https://www.nuget.org/packages/Chiliz.Net).
 ```
-pm> Install-Package Chiliz.Net
+PM> Install-Package Chiliz.Net
 ```
 To get started with Chiliz.Net first you will need to get the library itself. The easiest way to do this is to install the package into your project using  [NuGet](https://www.nuget.org/packages/Chiliz.Net). Using Visual Studio this can be done in two ways.
 
@@ -113,6 +117,9 @@ After installing it's time to actually use it. To get started we have to add the
 Chiliz.Net provides two clients to interact with the Chiliz API. The  `ChilizClient`  provides all rest API calls. The  `ChilizSocketClient`  provides functions to interact with the websocket provided by the Chiliz API. Both clients are disposable and as such can be used in a  `using`statement.
 
 ## Release Notes
+* Version 1.2.5 - 23 Dec 2020
+    * CryptoExchange version updated to 3.4.0
+
 * Version 1.2.4 - 12 Dec 2020
     * CryptoExchange version updated to 3.3.0
 
