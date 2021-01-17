@@ -4,7 +4,7 @@ using CryptoExchange.Net.Converters;
 
 namespace Chiliz.Net.Converters
 {
-    internal class KlineIntervalConverter: BaseConverter<KlineInterval>
+    public class KlineIntervalConverter: BaseConverter<KlineInterval>
     {
         public KlineIntervalConverter(): this(true) { }
         public KlineIntervalConverter(bool quotes) : base(quotes) { }

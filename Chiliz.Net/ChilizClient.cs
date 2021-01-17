@@ -25,62 +25,62 @@ namespace Chiliz.Net
     public class ChilizClient : RestClient, IChilizClient
     {
         #region Fields 
-        private static ChilizClientOptions defaultOptions = new ChilizClientOptions();
-        private static ChilizClientOptions DefaultOptions => defaultOptions.Copy();
+        protected static ChilizClientOptions defaultOptions = new ChilizClientOptions();
+        protected static ChilizClientOptions DefaultOptions => defaultOptions.Copy();
 
-        private readonly bool autoTimestamp;
-        private readonly TimeSpan autoTimestampRecalculationInterval;
-        private readonly TimeSpan timestampOffset;
-        private readonly TradeRulesBehaviour tradeRulesBehaviour;
-        private readonly TimeSpan tradeRulesUpdateInterval;
-        private readonly TimeSpan defaultReceiveWindow;
+        protected readonly bool autoTimestamp;
+        protected readonly TimeSpan autoTimestampRecalculationInterval;
+        protected readonly TimeSpan timestampOffset;
+        protected readonly TradeRulesBehaviour tradeRulesBehaviour;
+        protected readonly TimeSpan tradeRulesUpdateInterval;
+        protected readonly TimeSpan defaultReceiveWindow;
 
-        private double calculatedTimeOffset;
-        private bool timeSynced;
-        private DateTime lastTimeSync;
+        protected double calculatedTimeOffset;
+        protected bool timeSynced;
+        protected DateTime lastTimeSync;
 
-        private ChilizExchangeInfo? exchangeInfo;
-        private DateTime? lastExchangeInfoUpdate;
+        protected ChilizExchangeInfo? exchangeInfo;
+        protected DateTime? lastExchangeInfoUpdate;
 
         // Addresses
-        private const string Api = "openapi";
-        private const string ApiQuote = "openapi/quote";
+        protected const string Api = "openapi";
+        protected const string ApiQuote = "openapi/quote";
 
         // Versions
-        private const string PublicVersion = "1";
-        private const string SignedVersion = "1";
-        private const string UserDataStreamVersion = "1";
+        protected const string PublicVersion = "1";
+        protected const string SignedVersion = "1";
+        protected const string UserDataStreamVersion = "1";
 
         // Public
-        private const string PingEndpoint = "ping";
-        private const string CheckTimeEndpoint = "time";
-        private const string ExchangeInfoEndpoint = "brokerInfo";
-        private const string OrderBookEndpoint = "depth";
-        private const string RecentTradesEndpoint = "trades";
-        private const string KlinesEndpoint = "klines";
-        private const string Price24HEndpoint = "ticker/24hr";
-        private const string AllPricesEndpoint = "ticker/price";
-        private const string BookPricesEndpoint = "ticker/bookTicker";
+        protected const string PingEndpoint = "ping";
+        protected const string CheckTimeEndpoint = "time";
+        protected const string ExchangeInfoEndpoint = "brokerInfo";
+        protected const string OrderBookEndpoint = "depth";
+        protected const string RecentTradesEndpoint = "trades";
+        protected const string KlinesEndpoint = "klines";
+        protected const string Price24HEndpoint = "ticker/24hr";
+        protected const string AllPricesEndpoint = "ticker/price";
+        protected const string BookPricesEndpoint = "ticker/bookTicker";
 
         // Accounts
-        private const string AccountInfoEndpoint = "account";
+        protected const string AccountInfoEndpoint = "account";
 
         // Orders
-        private const string NewOrderEndpoint = "order";
-        private const string NewTestOrderEndpoint = "order/test";
-        private const string QueryOrderEndpoint = "order";
-        private const string CancelOrderEndpoint = "order";
-        private const string OpenOrdersEndpoint = "openOrders";
-        private const string HistoryOrdersEndpoint = "historyOrders";
-        private const string MyTradesEndpoint = "myTrades";
+        protected const string NewOrderEndpoint = "order";
+        protected const string NewTestOrderEndpoint = "order/test";
+        protected const string QueryOrderEndpoint = "order";
+        protected const string CancelOrderEndpoint = "order";
+        protected const string OpenOrdersEndpoint = "openOrders";
+        protected const string HistoryOrdersEndpoint = "historyOrders";
+        protected const string MyTradesEndpoint = "myTrades";
 
         // Deposit & Withdrawal
-        private const string DepositOrdersEndpoint = "depositOrders";
+        protected const string DepositOrdersEndpoint = "depositOrders";
 
         // User stream
-        private const string GetListenKeyEndpoint = "userDataStream";
-        private const string KeepListenKeyAliveEndpoint = "userDataStream";
-        private const string CloseListenKeyEndpoint = "userDataStream";
+        protected const string GetListenKeyEndpoint = "userDataStream";
+        protected const string KeepListenKeyAliveEndpoint = "userDataStream";
+        protected const string CloseListenKeyEndpoint = "userDataStream";
 
         #endregion
 
@@ -96,7 +96,7 @@ namespace Chiliz.Net
         /// Create a new instance of ChilizClient using provided options
         /// </summary>
         /// <param name="options">The options to use for this client</param>
-        public ChilizClient(ChilizClientOptions options) : base("Chiliz", options, options.ApiCredentials == null ? null : new ChilizAuthenticationProvider (options.ApiCredentials, ArrayParametersSerialization.MultipleValues))
+        public ChilizClient(ChilizClientOptions options) : base("Chiliz", options, options.ApiCredentials == null ? null : new ChilizAuthenticationProvider(options.ApiCredentials, ArrayParametersSerialization.MultipleValues))
         {
             arraySerialization = ArrayParametersSerialization.MultipleValues;
 
@@ -126,9 +126,9 @@ namespace Chiliz.Net
         /// </summary>
         /// <param name="apiKey">The api key</param>
         /// <param name="apiSecret">The api secret</param>
-        public void SetApiCredentials(string apiKey, string apiSecret)
+        public virtual void SetApiCredentials(string apiKey, string apiSecret)
         {
-            SetAuthenticationProvider(new ChilizAuthenticationProvider (new ApiCredentials(apiKey, apiSecret), ArrayParametersSerialization.MultipleValues));
+            SetAuthenticationProvider(new ChilizAuthenticationProvider(new ApiCredentials(apiKey, apiSecret), ArrayParametersSerialization.MultipleValues));
         }
         #endregion
 
@@ -157,7 +157,7 @@ namespace Chiliz.Net
         /// <param name="resetAutoTimestamp">Whether the response should be used for a new auto timestamp calculation</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Server time</returns>
-        public WebCallResult<DateTime> GetServerTime(bool resetAutoTimestamp = false, CancellationToken ct = default) => GetServerTimeAsync(resetAutoTimestamp, ct).Result;
+        public virtual WebCallResult<DateTime> GetServerTime(bool resetAutoTimestamp = false, CancellationToken ct = default) => GetServerTimeAsync(resetAutoTimestamp, ct).Result;
 
         /// <summary>
         /// Requests the server for the local time. This function also determines the offset between server and local time and uses this for subsequent API calls
@@ -165,7 +165,7 @@ namespace Chiliz.Net
         /// <param name="resetAutoTimestamp">Whether the response should be used for a new auto timestamp calculation</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Server time</returns>
-        public async Task<WebCallResult<DateTime>> GetServerTimeAsync(bool resetAutoTimestamp = false, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<DateTime>> GetServerTimeAsync(bool resetAutoTimestamp = false, CancellationToken ct = default)
         {
             var url = GetUrl(CheckTimeEndpoint, Api, PublicVersion);
             if (!autoTimestamp)
@@ -217,14 +217,14 @@ namespace Chiliz.Net
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Exchange info</returns>
-        public WebCallResult<ChilizExchangeInfo> GetExchangeInfo(CancellationToken ct = default) => GetExchangeInfoAsync(ct).Result;
+        public virtual WebCallResult<ChilizExchangeInfo> GetExchangeInfo(CancellationToken ct = default) => GetExchangeInfoAsync(ct).Result;
 
         /// <summary>
         /// Get's information about the exchange including rate limits and symbol list
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Exchange info</returns>
-        public async Task<WebCallResult<ChilizExchangeInfo>> GetExchangeInfoAsync(CancellationToken ct = default)
+        public virtual async Task<WebCallResult<ChilizExchangeInfo>> GetExchangeInfoAsync(CancellationToken ct = default)
         {
             var exchangeInfoResult = await SendRequest<ChilizExchangeInfo>(GetUrl(ExchangeInfoEndpoint, Api, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
             if (!exchangeInfoResult)
@@ -243,7 +243,7 @@ namespace Chiliz.Net
         /// <param name="limit">Max number of results</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The order book for the symbol</returns>
-        public WebCallResult<ChilizOrderBook> GetOrderBook(string symbol, int? limit = null, CancellationToken ct = default) => GetOrderBookAsync(symbol, limit, ct).Result;
+        public virtual WebCallResult<ChilizOrderBook> GetOrderBook(string symbol, int? limit = null, CancellationToken ct = default) => GetOrderBookAsync(symbol, limit, ct).Result;
 
         /// <summary>
         /// Gets the order book for the provided symbol
@@ -252,7 +252,7 @@ namespace Chiliz.Net
         /// <param name="limit">Max number of results</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The order book for the symbol</returns>
-        public async Task<WebCallResult<ChilizOrderBook>> GetOrderBookAsync(string symbol, int? limit = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<ChilizOrderBook>> GetOrderBookAsync(string symbol, int? limit = null, CancellationToken ct = default)
         {
             symbol.ValidateChilizSymbol();
             limit?.ValidateIntValues(nameof(limit), 5, 10, 20, 50, 100, 500, 1000);
@@ -271,7 +271,7 @@ namespace Chiliz.Net
         /// <param name="limit">Result limit</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of recent trades</returns>
-        public WebCallResult<IEnumerable<ChilizRecentTrade>> GetSymbolTrades(string symbol, int? limit = null, CancellationToken ct = default) => GetSymbolTradesAsync(symbol, limit, ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizRecentTrade>> GetSymbolTrades(string symbol, int? limit = null, CancellationToken ct = default) => GetSymbolTradesAsync(symbol, limit, ct).Result;
 
         /// <summary>
         /// Gets the recent trades for a symbol
@@ -280,7 +280,7 @@ namespace Chiliz.Net
         /// <param name="limit">Result limit</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of recent trades</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizRecentTrade>>> GetSymbolTradesAsync(string symbol, int? limit = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizRecentTrade>>> GetSymbolTradesAsync(string symbol, int? limit = null, CancellationToken ct = default)
         {
             symbol.ValidateChilizSymbol();
             limit?.ValidateIntBetween(nameof(limit), 1, 1000);
@@ -300,7 +300,7 @@ namespace Chiliz.Net
         /// <param name="limit">Max number of results</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The candlestick data for the provided symbol</returns>
-        public WebCallResult<IEnumerable<ChilizKline>> GetKlines(string symbol, KlineInterval interval, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, CancellationToken ct = default) => GetKlinesAsync(symbol, interval, startTime, endTime, limit, ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizKline>> GetKlines(string symbol, KlineInterval interval, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, CancellationToken ct = default) => GetKlinesAsync(symbol, interval, startTime, endTime, limit, ct).Result;
 
         /// <summary>
         /// Get candlestick data for the provided symbol
@@ -312,7 +312,7 @@ namespace Chiliz.Net
         /// <param name="limit">Max number of results</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The candlestick data for the provided symbol</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizKline>>> GetKlinesAsync(string symbol, KlineInterval interval, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizKline>>> GetKlinesAsync(string symbol, KlineInterval interval, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, CancellationToken ct = default)
         {
             symbol.ValidateChilizSymbol();
             limit?.ValidateIntBetween(nameof(limit), 1, 2000);
@@ -333,7 +333,7 @@ namespace Chiliz.Net
         /// <param name="symbol">The symbol to get the data for</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Data over the last 24 hours</returns>
-        public WebCallResult<Chiliz24HPrice> Get24HPrice(string symbol, CancellationToken ct = default) => Get24HPriceAsync(symbol, ct).Result;
+        public virtual WebCallResult<Chiliz24HPrice> Get24HPrice(string symbol, CancellationToken ct = default) => Get24HPriceAsync(symbol, ct).Result;
 
         /// <summary>
         /// Get data regarding the last 24 hours for the provided symbol
@@ -341,7 +341,7 @@ namespace Chiliz.Net
         /// <param name="symbol">The symbol to get the data for</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Data over the last 24 hours</returns>
-        public async Task<WebCallResult<Chiliz24HPrice>> Get24HPriceAsync(string symbol, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<Chiliz24HPrice>> Get24HPriceAsync(string symbol, CancellationToken ct = default)
         {
             symbol.ValidateChilizSymbol();
             var parameters = new Dictionary<string, object> { { "symbol", symbol } };
@@ -354,14 +354,14 @@ namespace Chiliz.Net
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of data over the last 24 hours</returns>
-        public WebCallResult<IEnumerable<ChilizAll24hPrice>> GetAll24HPrices(CancellationToken ct = default) => GetAll24HPricesAsync(ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizAll24hPrice>> GetAll24HPrices(CancellationToken ct = default) => GetAll24HPricesAsync(ct).Result;
 
         /// <summary>
         /// Get data regarding the last 24 hours for all symbols
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of data over the last 24 hours</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizAll24hPrice>>> GetAll24HPricesAsync(CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizAll24hPrice>>> GetAll24HPricesAsync(CancellationToken ct = default)
         {
             return await SendRequest<IEnumerable<ChilizAll24hPrice>>(GetUrl(Price24HEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
         }
@@ -372,7 +372,7 @@ namespace Chiliz.Net
         /// <param name="symbol">The symbol to get the price for</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Price of symbol</returns>
-        public WebCallResult<ChilizPrice> GetPrice(string symbol, CancellationToken ct = default) => GetPriceAsync(symbol, ct).Result;
+        public virtual WebCallResult<ChilizPrice> GetPrice(string symbol, CancellationToken ct = default) => GetPriceAsync(symbol, ct).Result;
 
         /// <summary>
         /// Gets the price of a symbol
@@ -380,7 +380,7 @@ namespace Chiliz.Net
         /// <param name="symbol">The symbol to get the price for</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Price of symbol</returns>
-        public async Task<WebCallResult<ChilizPrice>> GetPriceAsync(string symbol, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<ChilizPrice>> GetPriceAsync(string symbol, CancellationToken ct = default)
         {
             symbol.ValidateChilizSymbol();
             var parameters = new Dictionary<string, object>
@@ -396,14 +396,14 @@ namespace Chiliz.Net
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of prices</returns>
-        public WebCallResult<IEnumerable<ChilizPrice>> GetAllPrices(CancellationToken ct = default) => GetAllPricesAsync(ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizPrice>> GetAllPrices(CancellationToken ct = default) => GetAllPricesAsync(ct).Result;
 
         /// <summary>
         /// Get a list of the prices of all symbols
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of prices</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizPrice>>> GetAllPricesAsync(CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizPrice>>> GetAllPricesAsync(CancellationToken ct = default)
         {
             return await SendRequest<IEnumerable<ChilizPrice>>(GetUrl(AllPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
         }
@@ -414,7 +414,7 @@ namespace Chiliz.Net
         /// <param name="symbol">Symbol to get book price for</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of book prices</returns>
-        public WebCallResult<ChilizBookPrice> GetBookPrice(string symbol, CancellationToken ct = default) => GetBookPriceAsync(symbol, ct).Result;
+        public virtual WebCallResult<ChilizBookPrice> GetBookPrice(string symbol, CancellationToken ct = default) => GetBookPriceAsync(symbol, ct).Result;
 
         /// <summary>
         /// Gets the best price/quantity on the order book for a symbol.
@@ -422,7 +422,7 @@ namespace Chiliz.Net
         /// <param name="symbol">Symbol to get book price for</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of book prices</returns>
-        public async Task<WebCallResult<ChilizBookPrice>> GetBookPriceAsync(string symbol, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<ChilizBookPrice>> GetBookPriceAsync(string symbol, CancellationToken ct = default)
         {
             symbol.ValidateChilizSymbol();
             var parameters = new Dictionary<string, object> { { "symbol", symbol } };
@@ -435,14 +435,14 @@ namespace Chiliz.Net
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of book prices</returns>
-        public WebCallResult<IEnumerable<ChilizBookPrice>> GetAllBookPrices(CancellationToken ct = default) => GetAllBookPricesAsync(ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizBookPrice>> GetAllBookPrices(CancellationToken ct = default) => GetAllBookPricesAsync(ct).Result;
 
         /// <summary>
         /// Gets the best price/quantity on the order book for all symbols.
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of book prices</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizBookPrice>>> GetAllBookPricesAsync(CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizBookPrice>>> GetAllBookPricesAsync(CancellationToken ct = default)
         {
             return await SendRequest<IEnumerable<ChilizBookPrice>>(GetUrl(BookPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
         }
@@ -457,7 +457,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The account information</returns>
-        public WebCallResult<ChilizAccountInfo> GetAccountInfo(long? receiveWindow = null, CancellationToken ct = default) => GetAccountInfoAsync(receiveWindow, ct).Result;
+        public virtual WebCallResult<ChilizAccountInfo> GetAccountInfo(long? receiveWindow = null, CancellationToken ct = default) => GetAccountInfoAsync(receiveWindow, ct).Result;
 
         /// <summary>
         /// Gets account information, including balances
@@ -465,7 +465,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The account information</returns>
-        public async Task<WebCallResult<ChilizAccountInfo>> GetAccountInfoAsync(long? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<ChilizAccountInfo>> GetAccountInfoAsync(long? receiveWindow = null, CancellationToken ct = default)
         {
             var timestampResult = await CheckAutoTimestamp(ct).ConfigureAwait(false);
             if (!timestampResult)
@@ -489,7 +489,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of open orders</returns>
-        public WebCallResult<IEnumerable<ChilizOrder>> GetOpenOrders(string? symbol = null, long? orderId = null, int? limit = null, int? receiveWindow = null, CancellationToken ct = default) => GetOpenOrdersAsync(symbol, orderId, limit, receiveWindow, ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizOrder>> GetOpenOrders(string? symbol = null, long? orderId = null, int? limit = null, int? receiveWindow = null, CancellationToken ct = default) => GetOpenOrdersAsync(symbol, orderId, limit, receiveWindow, ct).Result;
 
         /// <summary>
         /// Gets a list of open orders
@@ -498,7 +498,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of open orders</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizOrder>>> GetOpenOrdersAsync(string? symbol = null, long? orderId=null, int? limit=null, int? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizOrder>>> GetOpenOrdersAsync(string? symbol = null, long? orderId = null, int? limit = null, int? receiveWindow = null, CancellationToken ct = default)
         {
             symbol?.ValidateChilizSymbol();
             limit?.ValidateIntBetween(nameof(limit), 1, 1000);
@@ -529,7 +529,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of orders</returns>
-        public WebCallResult<IEnumerable<ChilizOrder>> GetAllOrders(string? symbol = null, long? orderId = null, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, int? receiveWindow = null, CancellationToken ct = default) => GetAllOrdersAsync(symbol, orderId, startTime, endTime, limit, receiveWindow, ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizOrder>> GetAllOrders(string? symbol = null, long? orderId = null, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, int? receiveWindow = null, CancellationToken ct = default) => GetAllOrdersAsync(symbol, orderId, startTime, endTime, limit, receiveWindow, ct).Result;
 
         /// <summary>
         /// Gets all orders for the provided symbol
@@ -542,7 +542,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of orders</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizOrder>>> GetAllOrdersAsync(string? symbol = null, long? orderId = null, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, int? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizOrder>>> GetAllOrdersAsync(string? symbol = null, long? orderId = null, DateTime? startTime = null, DateTime? endTime = null, int? limit = null, int? receiveWindow = null, CancellationToken ct = default)
         {
             symbol?.ValidateChilizSymbol();
             limit?.ValidateIntBetween(nameof(limit), 1, 1000);
@@ -577,7 +577,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Id's for the placed order</returns>
-        public WebCallResult<ChilizPlacedOrder> PlaceOrder(
+        public virtual WebCallResult<ChilizPlacedOrder> PlaceOrder(
             string symbol,
             OrderSide side,
             OrderType type,
@@ -587,7 +587,7 @@ namespace Chiliz.Net
             string? newClientOrderId = null,
             decimal? stopPrice = null,
             decimal? icebergQty = null,
-            string? assetType=null,
+            string? assetType = null,
             int? receiveWindow = null,
             CancellationToken ct = default) => PlaceOrderAsync(symbol, side, type, timeInForce, quantity, price, newClientOrderId, stopPrice, icebergQty, assetType, receiveWindow, ct).Result;
 
@@ -604,7 +604,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Id's for the placed order</returns>
-        public async Task<WebCallResult<ChilizPlacedOrder>> PlaceOrderAsync(
+        public virtual async Task<WebCallResult<ChilizPlacedOrder>> PlaceOrderAsync(
             string symbol,
             OrderSide side,
             OrderType type,
@@ -635,7 +635,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Id's for the placed test order</returns>
-        public WebCallResult<ChilizPlacedOrder> PlaceTestOrder(
+        public virtual WebCallResult<ChilizPlacedOrder> PlaceTestOrder(
             string symbol,
             OrderSide side,
             OrderType type,
@@ -662,7 +662,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Id's for the placed test order</returns>
-        public async Task<WebCallResult<ChilizPlacedOrder>> PlaceTestOrderAsync(
+        public virtual async Task<WebCallResult<ChilizPlacedOrder>> PlaceTestOrderAsync(
             string symbol,
             OrderSide side,
             OrderType type,
@@ -689,7 +689,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The specific order</returns>
-        public WebCallResult<ChilizOrder> GetOrder(long? orderId = null, string? origClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default) => GetOrderAsync(orderId, origClientOrderId, receiveWindow, ct).Result;
+        public virtual WebCallResult<ChilizOrder> GetOrder(long? orderId = null, string? origClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default) => GetOrderAsync(orderId, origClientOrderId, receiveWindow, ct).Result;
 
         /// <summary>
         /// Retrieves data for a specific order. Either orderId or origClientOrderId should be provided.
@@ -700,7 +700,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>The specific order</returns>
-        public async Task<WebCallResult<ChilizOrder>> GetOrderAsync(long? orderId = null, string? origClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<ChilizOrder>> GetOrderAsync(long? orderId = null, string? origClientOrderId = null, long? receiveWindow = null, CancellationToken ct = default)
         {
             if (orderId == null && origClientOrderId == null)
                 throw new ArgumentException("Either orderId or origClientOrderId must be sent");
@@ -728,7 +728,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Id's for canceled order</returns>
-        public WebCallResult<ChilizCanceledOrder> CancelOrder(long? orderId = null, string? clientOrderId = null, long? receiveWindow = null, CancellationToken ct = default) => CancelOrderAsync(orderId, clientOrderId, receiveWindow, ct).Result;
+        public virtual WebCallResult<ChilizCanceledOrder> CancelOrder(long? orderId = null, string? clientOrderId = null, long? receiveWindow = null, CancellationToken ct = default) => CancelOrderAsync(orderId, clientOrderId, receiveWindow, ct).Result;
 
         /// <summary>
         /// Cancels a pending order
@@ -738,7 +738,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Id's for canceled order</returns>
-        public async Task<WebCallResult<ChilizCanceledOrder>> CancelOrderAsync(long? orderId = null, string? clientOrderId = null, long? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<ChilizCanceledOrder>> CancelOrderAsync(long? orderId = null, string? clientOrderId = null, long? receiveWindow = null, CancellationToken ct = default)
         {
             var timestampResult = await CheckAutoTimestamp(ct).ConfigureAwait(false);
             if (!timestampResult)
@@ -771,7 +771,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of trades</returns>
-        public WebCallResult<IEnumerable<ChilizTrade>> GetMyTrades(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, long? toId = null, int? limit = null, long? receiveWindow = null, CancellationToken ct = default) => GetMyTradesAsync(startTime, endTime, fromId, toId, limit, receiveWindow, ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizTrade>> GetMyTrades(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, long? toId = null, int? limit = null, long? receiveWindow = null, CancellationToken ct = default) => GetMyTradesAsync(startTime, endTime, fromId, toId, limit, receiveWindow, ct).Result;
 
         /// <summary>
         /// Gets all user trades for provided symbol
@@ -784,7 +784,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow">The receive window for which this request is active. When the request takes longer than this to complete the server will reject the request</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>List of trades</returns>
-        public async Task<WebCallResult<IEnumerable<ChilizTrade>>> GetMyTradesAsync(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, long? toId = null, int? limit = null, long? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizTrade>>> GetMyTradesAsync(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, long? toId = null, int? limit = null, long? receiveWindow = null, CancellationToken ct = default)
         {
             limit?.ValidateIntBetween(nameof(limit), 1, 1000);
 
@@ -818,7 +818,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow"></param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public WebCallResult<IEnumerable<ChilizDeposit>> GetDepositHistory(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, int limit = 500, int? receiveWindow = null, CancellationToken ct = default) => GetDepositHistoryAsync(startTime, endTime, fromId, limit, receiveWindow, ct).Result;
+        public virtual WebCallResult<IEnumerable<ChilizDeposit>> GetDepositHistory(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, int limit = 500, int? receiveWindow = null, CancellationToken ct = default) => GetDepositHistoryAsync(startTime, endTime, fromId, limit, receiveWindow, ct).Result;
         /// <summary>
         /// GET deposit orders for a specific account.
         /// </summary>
@@ -829,7 +829,7 @@ namespace Chiliz.Net
         /// <param name="receiveWindow"></param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public async Task<WebCallResult<IEnumerable<ChilizDeposit>>> GetDepositHistoryAsync(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, int limit=500, int? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<IEnumerable<ChilizDeposit>>> GetDepositHistoryAsync(DateTime? startTime = null, DateTime? endTime = null, long? fromId = null, int limit = 500, int? receiveWindow = null, CancellationToken ct = default)
         {
             limit.ValidateIntBetween(nameof(limit), 1, 1000);
 
@@ -847,7 +847,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("limit", limit);
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest< IEnumerable<ChilizDeposit>>(GetUrl(DepositOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequest<IEnumerable<ChilizDeposit>>(GetUrl(DepositOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
         }
         #endregion
 
@@ -857,14 +857,14 @@ namespace Chiliz.Net
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Listen key</returns>
-        public WebCallResult<string> StartUserStream(int? receiveWindow = null, CancellationToken ct = default) => StartUserStreamAsync(receiveWindow,ct).Result;
+        public virtual WebCallResult<string> StartUserStream(int? receiveWindow = null, CancellationToken ct = default) => StartUserStreamAsync(receiveWindow, ct).Result;
 
         /// <summary>
         /// Starts a user stream by requesting a listen key. This listen key can be used in subsequent requests to ChilizSocketClient.SubscribeToUserDataUpdates. The stream will close after 60 minutes unless a keep alive is send.
         /// </summary>
         /// <param name="ct">Cancellation token</param>
         /// <returns>Listen key</returns>
-        public async Task<WebCallResult<string>> StartUserStreamAsync(int? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<string>> StartUserStreamAsync(int? receiveWindow = null, CancellationToken ct = default)
         {
             var timestampResult = await CheckAutoTimestamp(ct).ConfigureAwait(false);
             if (!timestampResult)
@@ -876,7 +876,7 @@ namespace Chiliz.Net
             };
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            var result = await SendRequest<ChilizListenKey>(GetUrl(GetListenKeyEndpoint, Api, UserDataStreamVersion), HttpMethod.Post, ct, parameters, signed:true).ConfigureAwait(false);
+            var result = await SendRequest<ChilizListenKey>(GetUrl(GetListenKeyEndpoint, Api, UserDataStreamVersion), HttpMethod.Post, ct, parameters, signed: true).ConfigureAwait(false);
             return new WebCallResult<string>(result.ResponseStatusCode, result.ResponseHeaders, result.Data?.ListenKey, result.Error);
         }
 
@@ -886,7 +886,7 @@ namespace Chiliz.Net
         /// <param name="listenKey">The listen key to keep alive</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public WebCallResult<object> KeepAliveUserStream(string listenKey, int? receiveWindow = null, CancellationToken ct = default) => KeepAliveUserStreamAsync(listenKey, receiveWindow, ct).Result;
+        public virtual WebCallResult<object> KeepAliveUserStream(string listenKey, int? receiveWindow = null, CancellationToken ct = default) => KeepAliveUserStreamAsync(listenKey, receiveWindow, ct).Result;
 
         /// <summary>
         /// Sends a keep alive for the current user stream listen key to keep the stream from closing. Stream auto closes after 60 minutes if no keep alive is send. 30 minute interval for keep alive is recommended.
@@ -894,7 +894,7 @@ namespace Chiliz.Net
         /// <param name="listenKey">The listen key to keep alive</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public async Task<WebCallResult<object>> KeepAliveUserStreamAsync(string listenKey, int? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<object>> KeepAliveUserStreamAsync(string listenKey, int? receiveWindow = null, CancellationToken ct = default)
         {
             listenKey.ValidateNotNull(nameof(listenKey));
             var timestampResult = await CheckAutoTimestamp(ct).ConfigureAwait(false);
@@ -917,7 +917,7 @@ namespace Chiliz.Net
         /// <param name="listenKey">The listen key to keep alive</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public WebCallResult<object> StopUserStream(string listenKey, int? receiveWindow = null, CancellationToken ct = default) => StopUserStreamAsync(listenKey, receiveWindow, ct).Result;
+        public virtual WebCallResult<object> StopUserStream(string listenKey, int? receiveWindow = null, CancellationToken ct = default) => StopUserStreamAsync(listenKey, receiveWindow, ct).Result;
 
         /// <summary>
         /// Stops the current user stream
@@ -925,7 +925,7 @@ namespace Chiliz.Net
         /// <param name="listenKey">The listen key to keep alive</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public async Task<WebCallResult<object>> StopUserStreamAsync(string listenKey, int? receiveWindow = null, CancellationToken ct = default)
+        public virtual async Task<WebCallResult<object>> StopUserStreamAsync(string listenKey, int? receiveWindow = null, CancellationToken ct = default)
         {
             listenKey.ValidateNotNull(nameof(listenKey));
             var timestampResult = await CheckAutoTimestamp(ct).ConfigureAwait(false);
@@ -947,7 +947,7 @@ namespace Chiliz.Net
 
         #region Private & Protected Methods
 
-        private async Task<WebCallResult<ChilizPlacedOrder>> PlaceOrderInternal(Uri uri,
+        protected virtual async Task<WebCallResult<ChilizPlacedOrder>> PlaceOrderInternal(Uri uri,
             string symbol,
             OrderSide side,
             OrderType type,
@@ -998,6 +998,10 @@ namespace Chiliz.Net
 
         protected override Error ParseErrorResponse(JToken error)
         {
+            return this.ChilizParseErrorResponse(error);
+        }
+        protected virtual Error ChilizParseErrorResponse(JToken error)
+        {
             if (!error.HasValues)
                 return new ServerError(error.ToString());
 
@@ -1010,24 +1014,24 @@ namespace Chiliz.Net
             return new ServerError((int)error["code"], (string)error["msg"]);
         }
 
-        private Uri GetUrl(string endpoint, string api, string version)
+        protected virtual Uri GetUrl(string endpoint, string api, string version)
         {
             return new Uri($"{BaseAddress.TrimEnd('/')}/{api}/v{version}/{endpoint}");
         }
 
-        private static long ToUnixTimestamp(DateTime time)
+        protected static long ToUnixTimestamp(DateTime time)
         {
             return (long)(time - new DateTime(1970, 1, 1)).TotalMilliseconds;
         }
 
-        private string GetTimestamp()
+        protected virtual string GetTimestamp()
         {
             var offset = autoTimestamp ? calculatedTimeOffset : 0;
             offset += timestampOffset.TotalMilliseconds;
             return ToUnixTimestamp(DateTime.UtcNow.AddMilliseconds(offset)).ToString();
         }
 
-        private async Task<WebCallResult<DateTime>> CheckAutoTimestamp(CancellationToken ct)
+        protected virtual async Task<WebCallResult<DateTime>> CheckAutoTimestamp(CancellationToken ct)
         {
             if (autoTimestamp && (!timeSynced || DateTime.UtcNow - lastTimeSync > autoTimestampRecalculationInterval))
                 return await GetServerTimeAsync(timeSynced, ct).ConfigureAwait(false);
@@ -1035,7 +1039,7 @@ namespace Chiliz.Net
             return new WebCallResult<DateTime>(null, null, default, null);
         }
 
-        private async Task<ChilizTradeRuleResult> CheckTradeRules(string symbol, decimal? quantity, decimal? price, OrderType type, CancellationToken ct)
+        protected virtual async Task<ChilizTradeRuleResult> CheckTradeRules(string symbol, decimal? quantity, decimal? price, OrderType type, CancellationToken ct)
         {
             var outputQuantity = quantity;
             var outputPrice = price;

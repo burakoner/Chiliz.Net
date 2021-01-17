@@ -9,7 +9,7 @@ using CryptoExchange.Net.Objects;
 
 namespace Chiliz.Net
 {
-    internal class ChilizAuthenticationProvider : AuthenticationProvider
+    public class ChilizAuthenticationProvider : AuthenticationProvider
     {
         private readonly HMACSHA256 encryptor;
         private readonly ArrayParametersSerialization arraySerialization;

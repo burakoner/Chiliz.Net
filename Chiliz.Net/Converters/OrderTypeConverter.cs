@@ -6,7 +6,7 @@ using Chiliz.Net.Objects;
 
 namespace Chiliz.Net.Converters
 {
-    internal class OrderTypeConverter : JsonConverter
+    public class OrderTypeConverter : JsonConverter
     {
         private readonly bool quotes;
 

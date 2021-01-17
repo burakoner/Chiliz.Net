@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace Chiliz.Net.Converters
 {
-    internal class SymbolFilterConverter : JsonConverter
+    public class SymbolFilterConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {

@@ -4,7 +4,7 @@ using CryptoExchange.Net.Converters;
 
 namespace Chiliz.Net.Converters
 {
-    internal class RateLimitIntervalConverter : BaseConverter<RateLimitInterval>
+    public class RateLimitIntervalConverter : BaseConverter<RateLimitInterval>
     {
         public RateLimitIntervalConverter() : this(true) { }
         public RateLimitIntervalConverter(bool quotes) : base(quotes) { }

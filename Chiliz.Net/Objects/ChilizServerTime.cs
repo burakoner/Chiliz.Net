@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Chiliz.Net.Objects
 {
-    internal class ChilizServerTime
+    public class ChilizServerTime
     {
         [JsonProperty("serverTime"), JsonConverter(typeof(TimestampConverter))]
         public DateTime ServerTime { get; set; }

@@ -4,7 +4,7 @@ using CryptoExchange.Net.Converters;
 
 namespace Chiliz.Net.Converters
 {
-    internal class TimeInForceConverter : BaseConverter<TimeInForce>
+    public class TimeInForceConverter : BaseConverter<TimeInForce>
     {
         public TimeInForceConverter(): this(true) { }
         public TimeInForceConverter(bool quotes) : base(quotes) { }

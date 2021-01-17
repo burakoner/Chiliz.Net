@@ -4,7 +4,7 @@ using CryptoExchange.Net.Converters;
 
 namespace Chiliz.Net.Converters
 {
-    internal class SymbolFilterTypeConverter : BaseConverter<SymbolFilterType>
+    public class SymbolFilterTypeConverter : BaseConverter<SymbolFilterType>
     {
         public SymbolFilterTypeConverter(): this(true) { }
         public SymbolFilterTypeConverter(bool quotes) : base(quotes) { }

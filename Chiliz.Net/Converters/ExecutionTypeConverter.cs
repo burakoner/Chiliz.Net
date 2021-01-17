@@ -4,7 +4,7 @@ using CryptoExchange.Net.Converters;
 
 namespace Chiliz.Net.Converters
 {
-    internal class ExecutionTypeConverter: BaseConverter<ExecutionType>
+    public class ExecutionTypeConverter: BaseConverter<ExecutionType>
     {
         public ExecutionTypeConverter(): this(true) { }
         public ExecutionTypeConverter(bool quotes) : base(quotes) { }

@@ -2,7 +2,7 @@
 
 namespace Chiliz.Net.Objects
 {
-    internal class ChilizListenKey
+    public class ChilizListenKey
     {
         [JsonProperty("listenKey")]
         public string ListenKey { get; set; } = "";

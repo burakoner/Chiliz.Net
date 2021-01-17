@@ -22,8 +22,8 @@ namespace Chiliz.Net
     public class ChilizSocketClient : SocketClient, IChilizSocketClient
     {
         #region Fields
-        private static ChilizSocketClientOptions defaultOptions = new ChilizSocketClientOptions();
-        private static ChilizSocketClientOptions DefaultOptions => defaultOptions.Copy();
+        protected static ChilizSocketClientOptions defaultOptions = new ChilizSocketClientOptions();
+        protected static ChilizSocketClientOptions DefaultOptions => defaultOptions.Copy();
         #endregion
 
         #region Constructor/Destructor
@@ -59,7 +59,7 @@ namespace Chiliz.Net
         /// </summary>
         /// <param name="apiKey">The api key</param>
         /// <param name="apiSecret">The api secret</param>
-        public void SetApiCredentials(string apiKey, string apiSecret)
+        public virtual void SetApiCredentials(string apiKey, string apiSecret)
         {
             SetAuthenticationProvider(new ChilizAuthenticationProvider(new ApiCredentials(apiKey, apiSecret), ArrayParametersSerialization.MultipleValues));
         }
@@ -71,7 +71,7 @@ namespace Chiliz.Net
         /// <param name="interval">The interval of the candlesticks</param>
         /// <param name="onMessage">The event handler for the received data</param>
         /// <returns>A stream subscription. This stream subscription can be used to be notified when the socket is disconnected/reconnected</returns>
-        public CallResult<UpdateSubscription> SubscribeToKlineUpdates(string symbol, KlineInterval interval, Action<ChilizStreamKline> onMessage) => SubscribeToKlineUpdatesAsync(symbol, interval, onMessage).Result;
+        public virtual CallResult<UpdateSubscription> SubscribeToKlineUpdates(string symbol, KlineInterval interval, Action<ChilizStreamKline> onMessage) => SubscribeToKlineUpdatesAsync(symbol, interval, onMessage).Result;
         /// <summary>
         /// Subscribes to the candlestick update stream for the provided symbol
         /// </summary>
@@ -79,7 +79,7 @@ namespace Chiliz.Net
         /// <param name="interval">The interval of the candlesticks</param>
         /// <param name="onMessage">The event handler for the received data</param>
         /// <returns>A stream subscription. This stream subscription can be used to be notified when the socket is disconnected/reconnected</returns>
-        public async Task<CallResult<UpdateSubscription>> SubscribeToKlineUpdatesAsync(string symbol, KlineInterval interval, Action<ChilizStreamKline> onMessage) => await SubscribeToKlineUpdatesAsync(new[] { symbol }, interval, onMessage).ConfigureAwait(false);
+        public virtual async Task<CallResult<UpdateSubscription>> SubscribeToKlineUpdatesAsync(string symbol, KlineInterval interval, Action<ChilizStreamKline> onMessage) => await SubscribeToKlineUpdatesAsync(new[] { symbol }, interval, onMessage).ConfigureAwait(false);
         /// <summary>
         /// Subscribes to the candlestick update stream for the provided symbols
         /// </summary>
@@ -87,7 +87,7 @@ namespace Chiliz.Net
         /// <param name="interval">The interval of the candlesticks</param>
         /// <param name="onMessage">The event handler for the received data</param>
         /// <returns>A stream subscription. This stream subscription can be used to be notified when the socket is disconnected/reconnected</returns>
-        public CallResult<UpdateSubscription> SubscribeToKlineUpdates(IEnumerable<string> symbols, KlineInterval interval, Action<ChilizStreamKline> onMessage) => SubscribeToKlineUpdatesAsync(symbols, interval, onMessage).Result;
+        public virtual CallResult<UpdateSubscription> SubscribeToKlineUpdates(IEnumerable<string> symbols, KlineInterval interval, Action<ChilizStreamKline> onMessage) => SubscribeToKlineUpdatesAsync(symbols, interval, onMessage).Result;
         /// <summary>
         /// Subscribes to the candlestick update stream for the provided symbols
         /// </summary>
@@ -95,7 +95,7 @@ namespace Chiliz.Net
         /// <param name="interval">The interval of the candlesticks</param>
         /// <param name="onMessage">The event handler for the received data</param>
         /// <returns>A stream subscription. This stream subscription can be used to be notified when the socket is disconnected/reconnected</returns>
-        public async Task<CallResult<UpdateSubscription>> SubscribeToKlineUpdatesAsync(IEnumerable<string> symbols, KlineInterval interval, Action<ChilizStreamKline> onMessage)
+        public virtual async Task<CallResult<UpdateSubscription>> SubscribeToKlineUpdatesAsync(IEnumerable<string> symbols, KlineInterval interval, Action<ChilizStreamKline> onMessage)
         {
             symbols.ValidateNotNull(nameof(symbols));
             foreach (var symbol in symbols)
@@ -118,7 +118,7 @@ namespace Chiliz.Net
         }
 
 
-        public CallResult<UpdateSubscription> SubscribeToMarketTickers(string symbol, Action<ChilizStreamTicker> onMessage) => SubscribeToMarketTickersAsync(symbol, onMessage).Result;
+        public virtual CallResult<UpdateSubscription> SubscribeToMarketTickers(string symbol, Action<ChilizStreamTicker> onMessage) => SubscribeToMarketTickersAsync(symbol, onMessage).Result;
 
         /// <summary>
         /// Subscribes to the candlestick update stream for the provided symbol
@@ -127,7 +127,7 @@ namespace Chiliz.Net
         /// <param name="interval">The interval of the candlesticks</param>
         /// <param name="onMessage">The event handler for the received data</param>
         /// <returns>A stream subscription. This stream subscription can be used to be notified when the socket is disconnected/reconnected</returns>
-        public async Task<CallResult<UpdateSubscription>> SubscribeToMarketTickersAsync(string symbol, Action<ChilizStreamTicker> onMessage) => await SubscribeToMarketTickersAsync(new[] { symbol }, onMessage).ConfigureAwait(false);
+        public virtual async Task<CallResult<UpdateSubscription>> SubscribeToMarketTickersAsync(string symbol, Action<ChilizStreamTicker> onMessage) => await SubscribeToMarketTickersAsync(new[] { symbol }, onMessage).ConfigureAwait(false);
 
         /// <summary>
         /// Subscribes to the candlestick update stream for the provided symbols
@@ -136,7 +136,7 @@ namespace Chiliz.Net
         /// <param name="interval">The interval of the candlesticks</param>
         /// <param name="onMessage">The event handler for the received data</param>
         /// <returns>A stream subscription. This stream subscription can be used to be notified when the socket is disconnected/reconnected</returns>
-        public CallResult<UpdateSubscription> SubscribeToMarketTickers(IEnumerable<string> symbols, Action<ChilizStreamTicker> onMessage) => SubscribeToMarketTickersAsync(symbols, onMessage).Result;
+        public virtual CallResult<UpdateSubscription> SubscribeToMarketTickers(IEnumerable<string> symbols, Action<ChilizStreamTicker> onMessage) => SubscribeToMarketTickersAsync(symbols, onMessage).Result;
 
         /// <summary>
         /// Subscribes to the candlestick update stream for the provided symbols
@@ -145,7 +145,7 @@ namespace Chiliz.Net
         /// <param name="interval">The interval of the candlesticks</param>
         /// <param name="onMessage">The event handler for the received data</param>
         /// <returns>A stream subscription. This stream subscription can be used to be notified when the socket is disconnected/reconnected</returns>
-        public async Task<CallResult<UpdateSubscription>> SubscribeToMarketTickersAsync(IEnumerable<string> symbols, Action<ChilizStreamTicker> onMessage)
+        public virtual async Task<CallResult<UpdateSubscription>> SubscribeToMarketTickersAsync(IEnumerable<string> symbols, Action<ChilizStreamTicker> onMessage)
         {
             symbols.ValidateNotNull(nameof(symbols));
             foreach (var symbol in symbols)
@@ -169,7 +169,7 @@ namespace Chiliz.Net
         #endregion
 
         #region Private & Protected Methods
-        private async Task<CallResult<UpdateSubscription>> Subscribe<T>(string url, bool combined, Action<T> onData)
+        protected virtual async Task<CallResult<UpdateSubscription>> Subscribe<T>(string url, bool combined, Action<T> onData)
         {
             url = BaseAddress + url;
             return await Subscribe(url, null, url + NextId(), false, onData).ConfigureAwait(false);
@@ -177,10 +177,18 @@ namespace Chiliz.Net
 
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
         {
+            return this.ChilizHandleQueryResponse<T>(s, request, data, out callResult);
+        }
+        protected virtual bool ChilizHandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
+        {
             throw new NotImplementedException();
         }
 
         protected override bool HandleSubscriptionResponse(SocketConnection s, SocketSubscription subscription, object request, JToken message, out CallResult<object>? callResult)
+        {
+            return this.ChilizHandleSubscriptionResponse(s, subscription, request, message, out callResult);
+        }
+        protected virtual bool ChilizHandleSubscriptionResponse(SocketConnection s, SocketSubscription subscription, object request, JToken message, out CallResult<object>? callResult)
         {
             callResult = null;
             /** /
@@ -255,6 +263,10 @@ namespace Chiliz.Net
 
         protected override bool MessageMatchesHandler(JToken message, object request)
         {
+            return this.ChilizMessageMatchesHandler(message, request);
+        }
+        protected virtual bool ChilizMessageMatchesHandler(JToken message, object request)
+        {
             // Ping Pong
             if (message.HasValues && message["pong"] != null)
             {
@@ -297,6 +309,10 @@ namespace Chiliz.Net
 
         protected override bool MessageMatchesHandler(JToken message, string identifier)
         {
+            return this.ChilizMessageMatchesHandler(message, identifier);
+        }
+        protected virtual bool ChilizMessageMatchesHandler(JToken message, string identifier)
+        {
             return true;
 
 
@@ -314,13 +330,22 @@ namespace Chiliz.Net
 
         protected override Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
         {
+            return this.ChilizAuthenticateSocket(s);
+        }
+        protected virtual Task<CallResult<bool>> ChilizAuthenticateSocket(SocketConnection s)
+        {
             throw new NotImplementedException();
         }
 
         protected override Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
         {
+            return this.ChilizUnsubscribe(connection, s);
+        }
+        protected virtual Task<bool> ChilizUnsubscribe(SocketConnection connection, SocketSubscription s)
+        {
             return Task.FromResult(true);
         }
+
         #endregion
 
     }

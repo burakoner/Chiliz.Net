@@ -1,6 +1,6 @@
 ﻿namespace Chiliz.Net.Objects
 {
-    internal class ChilizTradeRuleResult
+    public class ChilizTradeRuleResult
     {
         public bool Passed { get; set; }
         public decimal? Quantity { get; set; }

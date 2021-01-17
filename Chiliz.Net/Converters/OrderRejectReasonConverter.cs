@@ -4,7 +4,7 @@ using CryptoExchange.Net.Converters;
 
 namespace Chiliz.Net.Converters
 {
-    internal class OrderRejectReasonConverter: BaseConverter<OrderRejectReason>
+    public class OrderRejectReasonConverter: BaseConverter<OrderRejectReason>
     {
         public OrderRejectReasonConverter(): this(true) { }
         public OrderRejectReasonConverter(bool quotes) : base(quotes) { }

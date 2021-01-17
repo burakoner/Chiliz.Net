@@ -4,7 +4,7 @@ using CryptoExchange.Net.Converters;
 
 namespace Chiliz.Net.Converters
 {
-    internal class OrderStatusConverter : BaseConverter<OrderStatus>
+    public class OrderStatusConverter : BaseConverter<OrderStatus>
     {
         public OrderStatusConverter(): this(true) { }
         public OrderStatusConverter(bool quotes) : base(quotes) { }
