@@ -86,6 +86,10 @@ Implementations from third parties:
 <br />
 <a href="https://github.com/ridicoulous/Bitmex.Net">Bitmex</a>
 </td>
+<td><a href="https://github.com/d-ugarov/Exante.Net"><img src="https://github.com/d-ugarov/Exante.Net/blob/master/Exante.Net/Icon/icon.png?raw=true"></a>
+<br />
+<a href="https://github.com/d-ugarov/Exante.Net">Exante</a>
+</td>
 <td><a href="https://github.com/intelligences/HitBTC.Net"><img src="https://github.com/intelligences/HitBTC.Net/blob/master/src/HitBTC.Net/Icon/icon.png?raw=true"></a>
 <br />
 <a href="https://github.com/intelligences/HitBTC.Net">HitBTC</a>
@@ -133,6 +137,9 @@ After installing it's time to actually use it. To get started we have to add the
 Chiliz.Net provides two clients to interact with the Chiliz API. The  `ChilizClient`  provides all rest API calls. The  `ChilizSocketClient`  provides functions to interact with the websocket provided by the Chiliz API. Both clients are disposable and as such can be used in a  `using`statement.
 
 ## Release Notes
+* Version 2.1.0 - 31 Mar 2021
+    * Updated dependencies
+
 * Version 2.0.1 - 01 Feb 2021
     * Updated CryptoExchange.Net to 3.6.0
 
