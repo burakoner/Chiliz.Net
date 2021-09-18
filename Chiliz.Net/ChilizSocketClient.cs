@@ -13,6 +13,7 @@ using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Chiliz.Net
 {
@@ -101,7 +102,7 @@ namespace Chiliz.Net
             foreach (var symbol in symbols)
                 symbol.ValidateChilizSymbol();
 
-            var handler = new Action<ChilizStreamKline>(data => onMessage(data));
+            var handler = new Action<DataEvent<ChilizStreamKline>>(data => onMessage(data.Data));
             var request = new ChilizKlineSubscribeRequest 
             {
                 Id = NextId().ToString(),
@@ -114,7 +115,7 @@ namespace Chiliz.Net
                     KlineType = JsonConvert.SerializeObject(interval, new KlineIntervalConverter(false))
                 }
             };
-            return await Subscribe(request, null, false, handler).ConfigureAwait(false);
+            return await SubscribeAsync(request, null, false, handler).ConfigureAwait(false);
         }
 
 
@@ -151,7 +152,7 @@ namespace Chiliz.Net
             foreach (var symbol in symbols)
                 symbol.ValidateChilizSymbol();
 
-            var handler = new Action<ChilizStreamTicker>(data => onMessage(data));
+            var handler = new Action<DataEvent<ChilizStreamTicker>>(data => onMessage(data.Data));
             var request = new ChilizMarketSubscribeRequest 
             {
                 Id = NextId().ToString(),
@@ -163,16 +164,16 @@ namespace Chiliz.Net
                     Binary = false,
                 }
             };
-            return await Subscribe(request, null, false, handler).ConfigureAwait(false);
+            return await SubscribeAsync(request, null, false, handler).ConfigureAwait(false);
         }
 
         #endregion
 
         #region Private & Protected Methods
-        protected virtual async Task<CallResult<UpdateSubscription>> Subscribe<T>(string url, bool combined, Action<T> onData)
+        protected virtual async Task<CallResult<UpdateSubscription>> Subscribe<T>(string url, bool combined, Action<DataEvent< T>> onData)
         {
             url = BaseAddress + url;
-            return await Subscribe(url, null, url + NextId(), false, onData).ConfigureAwait(false);
+            return await SubscribeAsync(url, null, url + NextId(), false, onData).ConfigureAwait(false);
         }
 
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
@@ -235,7 +236,7 @@ namespace Chiliz.Net
                 var subResponse = Deserialize<ChilizStreamKline>(message, false);
                 if (!subResponse)
                 {
-                    log.Write(LogVerbosity.Warning, "Subscription failed: " + subResponse.Error);
+                    log.Write(LogLevel.Warning, "Subscription failed: " + subResponse.Error);
                     return false;
                 }
                 /*
@@ -252,7 +253,7 @@ namespace Chiliz.Net
                 }
                 */
 
-                log.Write(LogVerbosity.Debug, "Subscription completed");
+                log.Write(LogLevel.Debug, "Subscription completed");
                 callResult = new CallResult<object>(subResponse.Data, null);
                 return true;
             }
@@ -328,7 +329,7 @@ namespace Chiliz.Net
             return false;
         }
 
-        protected override Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
+        protected override Task<CallResult<bool>> AuthenticateSocketAsync(SocketConnection s)
         {
             return this.ChilizAuthenticateSocket(s);
         }
@@ -337,7 +338,7 @@ namespace Chiliz.Net
             throw new NotImplementedException();
         }
 
-        protected override Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
+        protected override Task<bool> UnsubscribeAsync(SocketConnection connection, SocketSubscription s)
         {
             return this.ChilizUnsubscribe(connection, s);
         }

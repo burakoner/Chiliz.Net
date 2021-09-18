@@ -16,6 +16,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Chiliz.Net.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Chiliz.Net
 {
@@ -107,7 +108,7 @@ namespace Chiliz.Net
             timestampOffset = options.TimestampOffset;
             defaultReceiveWindow = options.ReceiveWindow;
 
-            postParametersPosition = PostParameters.InUri;
+            // postParametersPosition = PostParameters.InUri;
         }
         #endregion
 
@@ -146,7 +147,7 @@ namespace Chiliz.Net
         public override async Task<CallResult<long>> PingAsync(CancellationToken ct = default)
         {
             var sw = Stopwatch.StartNew();
-            var result = await SendRequest<object>(GetUrl(PingEndpoint, Api, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
+            var result = await SendRequestAsync<object>(GetUrl(PingEndpoint, Api, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
             sw.Stop();
             return new CallResult<long>(result.Error == null ? sw.ElapsedMilliseconds : 0, result.Error);
         }
@@ -170,13 +171,13 @@ namespace Chiliz.Net
             var url = GetUrl(CheckTimeEndpoint, Api, PublicVersion);
             if (!autoTimestamp)
             {
-                var result = await SendRequest<ChilizServerTime>(url, HttpMethod.Get, ct).ConfigureAwait(false);
+                var result = await SendRequestAsync<ChilizServerTime>(url, HttpMethod.Get, ct).ConfigureAwait(false);
                 return new WebCallResult<DateTime>(result.ResponseStatusCode, result.ResponseHeaders, result.Data?.ServerTime ?? default, result.Error);
             }
             else
             {
                 var localTime = DateTime.UtcNow;
-                var result = await SendRequest<ChilizServerTime>(url, HttpMethod.Get, ct).ConfigureAwait(false);
+                var result = await SendRequestAsync<ChilizServerTime>(url, HttpMethod.Get, ct).ConfigureAwait(false);
                 if (!result)
                     return new WebCallResult<DateTime>(result.ResponseStatusCode, result.ResponseHeaders, default, result.Error);
 
@@ -187,7 +188,7 @@ namespace Chiliz.Net
                 {
                     // If this was the first request make another one to calculate the offset since the first one can be slower
                     localTime = DateTime.UtcNow;
-                    result = await SendRequest<ChilizServerTime>(url, HttpMethod.Get, ct).ConfigureAwait(false);
+                    result = await SendRequestAsync<ChilizServerTime>(url, HttpMethod.Get, ct).ConfigureAwait(false);
                     if (!result)
                         return new WebCallResult<DateTime>(result.ResponseStatusCode, result.ResponseHeaders, default, result.Error);
                 }
@@ -200,14 +201,14 @@ namespace Chiliz.Net
                     calculatedTimeOffset = 0;
                     timeSynced = true;
                     lastTimeSync = DateTime.UtcNow;
-                    log.Write(LogVerbosity.Info, $"Time offset between 0 and 500ms ({offset}ms), no adjustment needed");
+                    log.Write(LogLevel.Information, $"Time offset between 0 and 500ms ({offset}ms), no adjustment needed");
                     return new WebCallResult<DateTime>(result.ResponseStatusCode, result.ResponseHeaders, result.Data.ServerTime, result.Error);
                 }
 
                 calculatedTimeOffset = (result.Data.ServerTime - localTime).TotalMilliseconds;
                 timeSynced = true;
                 lastTimeSync = DateTime.UtcNow;
-                log.Write(LogVerbosity.Info, $"Time offset set to {calculatedTimeOffset}ms");
+                log.Write(LogLevel.Information, $"Time offset set to {calculatedTimeOffset}ms");
                 return new WebCallResult<DateTime>(result.ResponseStatusCode, result.ResponseHeaders, result.Data.ServerTime, result.Error);
             }
         }
@@ -226,13 +227,13 @@ namespace Chiliz.Net
         /// <returns>Exchange info</returns>
         public virtual async Task<WebCallResult<ChilizExchangeInfo>> GetExchangeInfoAsync(CancellationToken ct = default)
         {
-            var exchangeInfoResult = await SendRequest<ChilizExchangeInfo>(GetUrl(ExchangeInfoEndpoint, Api, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
+            var exchangeInfoResult = await SendRequestAsync<ChilizExchangeInfo>(GetUrl(ExchangeInfoEndpoint, Api, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
             if (!exchangeInfoResult)
                 return exchangeInfoResult;
 
             exchangeInfo = exchangeInfoResult.Data;
             lastExchangeInfoUpdate = DateTime.UtcNow;
-            log.Write(LogVerbosity.Info, "Trade rules updated");
+            log.Write(LogLevel.Information, "Trade rules updated");
             return exchangeInfoResult;
         }
 
@@ -258,7 +259,7 @@ namespace Chiliz.Net
             limit?.ValidateIntValues(nameof(limit), 5, 10, 20, 50, 100, 500, 1000);
             var parameters = new Dictionary<string, object> { { "symbol", symbol } };
             parameters.AddOptionalParameter("limit", limit?.ToString());
-            var result = await SendRequest<ChilizOrderBook>(GetUrl(OrderBookEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
+            var result = await SendRequestAsync<ChilizOrderBook>(GetUrl(OrderBookEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
             if (result)
                 result.Data.Symbol = symbol;
             return result;
@@ -287,7 +288,7 @@ namespace Chiliz.Net
 
             var parameters = new Dictionary<string, object> { { "symbol", symbol } };
             parameters.AddOptionalParameter("limit", limit?.ToString());
-            return await SendRequest<IEnumerable<ChilizRecentTrade>>(GetUrl(RecentTradesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizRecentTrade>>(GetUrl(RecentTradesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -324,7 +325,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("endTime", endTime != null ? ToUnixTimestamp(endTime.Value).ToString() : null);
             parameters.AddOptionalParameter("limit", limit?.ToString());
 
-            return await SendRequest<IEnumerable<ChilizKline>>(GetUrl(KlinesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizKline>>(GetUrl(KlinesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -346,7 +347,7 @@ namespace Chiliz.Net
             symbol.ValidateChilizSymbol();
             var parameters = new Dictionary<string, object> { { "symbol", symbol } };
 
-            return await SendRequest<Chiliz24HPrice>(GetUrl(Price24HEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
+            return await SendRequestAsync<Chiliz24HPrice>(GetUrl(Price24HEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -363,7 +364,7 @@ namespace Chiliz.Net
         /// <returns>List of data over the last 24 hours</returns>
         public virtual async Task<WebCallResult<IEnumerable<ChilizAll24hPrice>>> GetAll24HPricesAsync(CancellationToken ct = default)
         {
-            return await SendRequest<IEnumerable<ChilizAll24hPrice>>(GetUrl(Price24HEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizAll24hPrice>>(GetUrl(Price24HEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -388,7 +389,7 @@ namespace Chiliz.Net
                 { "symbol", symbol }
             };
 
-            return await SendRequest<ChilizPrice>(GetUrl(AllPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
+            return await SendRequestAsync<ChilizPrice>(GetUrl(AllPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -405,7 +406,7 @@ namespace Chiliz.Net
         /// <returns>List of prices</returns>
         public virtual async Task<WebCallResult<IEnumerable<ChilizPrice>>> GetAllPricesAsync(CancellationToken ct = default)
         {
-            return await SendRequest<IEnumerable<ChilizPrice>>(GetUrl(AllPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizPrice>>(GetUrl(AllPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -427,7 +428,7 @@ namespace Chiliz.Net
             symbol.ValidateChilizSymbol();
             var parameters = new Dictionary<string, object> { { "symbol", symbol } };
 
-            return await SendRequest<ChilizBookPrice>(GetUrl(BookPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
+            return await SendRequestAsync<ChilizBookPrice>(GetUrl(BookPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -444,7 +445,7 @@ namespace Chiliz.Net
         /// <returns>List of book prices</returns>
         public virtual async Task<WebCallResult<IEnumerable<ChilizBookPrice>>> GetAllBookPricesAsync(CancellationToken ct = default)
         {
-            return await SendRequest<IEnumerable<ChilizBookPrice>>(GetUrl(BookPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizBookPrice>>(GetUrl(BookPricesEndpoint, ApiQuote, PublicVersion), HttpMethod.Get, ct).ConfigureAwait(false);
         }
         #endregion
 
@@ -477,7 +478,7 @@ namespace Chiliz.Net
             };
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<ChilizAccountInfo>(GetUrl(AccountInfoEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<ChilizAccountInfo>(GetUrl(AccountInfoEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
         }
         #endregion
 
@@ -515,7 +516,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("limit", limit?.ToString());
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<IEnumerable<ChilizOrder>>(GetUrl(OpenOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizOrder>>(GetUrl(OpenOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -561,7 +562,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("limit", limit?.ToString());
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<IEnumerable<ChilizOrder>>(GetUrl(HistoryOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizOrder>>(GetUrl(HistoryOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -717,7 +718,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("origClientOrderId", origClientOrderId);
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<ChilizOrder>(GetUrl(QueryOrderEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<ChilizOrder>(GetUrl(QueryOrderEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -755,7 +756,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("clientOrderId", clientOrderId);
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<ChilizCanceledOrder>(GetUrl(CancelOrderEndpoint, Api, SignedVersion), HttpMethod.Delete, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<ChilizCanceledOrder>(GetUrl(CancelOrderEndpoint, Api, SignedVersion), HttpMethod.Delete, ct, parameters, true).ConfigureAwait(false);
         }
         #endregion
 
@@ -803,7 +804,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("limit", limit?.ToString(CultureInfo.InvariantCulture));
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<IEnumerable<ChilizTrade>>(GetUrl(MyTradesEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizTrade>>(GetUrl(MyTradesEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
         }
         #endregion
 
@@ -847,7 +848,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("limit", limit);
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<IEnumerable<ChilizDeposit>>(GetUrl(DepositOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<IEnumerable<ChilizDeposit>>(GetUrl(DepositOrdersEndpoint, Api, SignedVersion), HttpMethod.Get, ct, parameters, true).ConfigureAwait(false);
         }
         #endregion
 
@@ -876,7 +877,7 @@ namespace Chiliz.Net
             };
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            var result = await SendRequest<ChilizListenKey>(GetUrl(GetListenKeyEndpoint, Api, UserDataStreamVersion), HttpMethod.Post, ct, parameters, signed: true).ConfigureAwait(false);
+            var result = await SendRequestAsync<ChilizListenKey>(GetUrl(GetListenKeyEndpoint, Api, UserDataStreamVersion), HttpMethod.Post, ct, parameters, signed: true).ConfigureAwait(false);
             return new WebCallResult<string>(result.ResponseStatusCode, result.ResponseHeaders, result.Data?.ListenKey, result.Error);
         }
 
@@ -908,7 +909,7 @@ namespace Chiliz.Net
             };
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<object>(GetUrl(KeepListenKeyAliveEndpoint, Api, UserDataStreamVersion), HttpMethod.Put, ct, parameters, signed: true).ConfigureAwait(false);
+            return await SendRequestAsync<object>(GetUrl(KeepListenKeyAliveEndpoint, Api, UserDataStreamVersion), HttpMethod.Put, ct, parameters, signed: true).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -939,7 +940,7 @@ namespace Chiliz.Net
             };
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<object>(GetUrl(CloseListenKeyEndpoint, Api, UserDataStreamVersion), HttpMethod.Delete, ct, parameters, signed: true).ConfigureAwait(false);
+            return await SendRequestAsync<object>(GetUrl(CloseListenKeyEndpoint, Api, UserDataStreamVersion), HttpMethod.Delete, ct, parameters, signed: true).ConfigureAwait(false);
         }
         #endregion
 
@@ -970,7 +971,7 @@ namespace Chiliz.Net
             var rulesCheck = await CheckTradeRules(symbol, quantity, price, type, ct).ConfigureAwait(false);
             if (!rulesCheck.Passed)
             {
-                log.Write(LogVerbosity.Warning, rulesCheck.ErrorMessage!);
+                log.Write(LogLevel.Warning, rulesCheck.ErrorMessage!);
                 return new WebCallResult<ChilizPlacedOrder>(null, null, null, new ArgumentError(rulesCheck.ErrorMessage!));
             }
 
@@ -993,7 +994,7 @@ namespace Chiliz.Net
             parameters.AddOptionalParameter("assetType", assetType);
             parameters.AddOptionalParameter("recvWindow", receiveWindow?.ToString(CultureInfo.InvariantCulture) ?? defaultReceiveWindow.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
 
-            return await SendRequest<ChilizPlacedOrder>(uri, HttpMethod.Post, ct, parameters, true).ConfigureAwait(false);
+            return await SendRequestAsync<ChilizPlacedOrder>(uri, HttpMethod.Post, ct, parameters, true).ConfigureAwait(false);
         }
 
         protected override Error ParseErrorResponse(JToken error)
@@ -1073,7 +1074,7 @@ namespace Chiliz.Net
                             return ChilizTradeRuleResult.CreateFailed($"Trade rules check failed: LotSize filter failed. Original quantity: {quantity}, Closest allowed: {outputQuantity}");
                         }
 
-                        log.Write(LogVerbosity.Info, $"Quantity clamped from {quantity} to {outputQuantity}");
+                        log.Write(LogLevel.Information, $"Quantity clamped from {quantity} to {outputQuantity}");
                     }
                 }
             }
@@ -1091,7 +1092,7 @@ namespace Chiliz.Net
                         if (tradeRulesBehaviour == TradeRulesBehaviour.ThrowError)
                             return ChilizTradeRuleResult.CreateFailed($"Trade rules check failed: Price filter max/min failed. Original price: {price}, Closest allowed: {outputPrice}");
 
-                        log.Write(LogVerbosity.Info, $"price clamped from {price} to {outputPrice}");
+                        log.Write(LogLevel.Information, $"price clamped from {price} to {outputPrice}");
                     }
                 }
 
@@ -1104,7 +1105,7 @@ namespace Chiliz.Net
                         if (tradeRulesBehaviour == TradeRulesBehaviour.ThrowError)
                             return ChilizTradeRuleResult.CreateFailed($"Trade rules check failed: Price filter tick failed. Original price: {price}, Closest allowed: {outputPrice}");
 
-                        log.Write(LogVerbosity.Info, $"price rounded from {beforePrice} to {outputPrice}");
+                        log.Write(LogLevel.Information, $"price rounded from {beforePrice} to {outputPrice}");
                     }
                 }
             }
